@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tempest Federation — Send a Frame</title>
+    <style>
+        /* ==================== SHARED CSS (same across all pages) ==================== */
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700&family=Quicksand:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-cream: #faf7f2;
+            --bg-cream-alt: #f3ede4;
+            --text-dark: #2c2a35;
+            --text-soft: #5a5560;
+            --accent-peach: #e8b4a2;
+            --accent-peach-hover: #dba08c;
+            --accent-lavender: #c4b5d0;
+            --navy: #2d3a4f;
+            --white-soft: #fefdfb;
+            --shadow-sm: 0 2px 12px rgba(44, 42, 53, 0.06);
+            --shadow-md: 0 6px 24px rgba(44, 42, 53, 0.10);
+            --font-heading: 'Playfair Display', serif;
+            --font-body: 'Quicksand', sans-serif;
+            --transition: 0.3s cubic-bezier(0.45, 0, 0.25, 1);
+            --radius-lg: 20px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: var(--bg-cream);
+            color: var(--text-dark);
+            font-family: var(--font-body);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* navigation */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2.5rem;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background-color: rgba(250, 247, 242, 0.85);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(44, 42, 53, 0.06);
+        }
+        .brand a {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--navy);
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-soft);
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            transition: var(--transition);
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px; left: 0;
+            width: 0; height: 2px;
+            background-color: var(--accent-peach);
+            border-radius: 2px;
+            transition: width 0.35s cubic-bezier(0.45, 0, 0.25, 1);
+        }
+        .nav-links a:hover { color: var(--navy); }
+        .nav-links a:hover::after { width: 100%; }
+        .nav-links a.active { color: var(--navy); font-weight: 600; }
+        .nav-links a.active::after { width: 100%; }
+
+        /* back-to-top button */
+        #backToTop {
+            position: fixed;
+            bottom: 28px; right: 28px;
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            background-color: var(--accent-peach);
+            color: var(--navy);
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            z-index: 999;
+        }
+        #backToTop.visible { display: flex; }
+        #backToTop:hover {
+            background-color: var(--accent-peach-hover);
+            transform: translateY(-5px);
+        }
+
+        /* page content spacing */
+        .page-content { padding-top: 100px; min-height: 80vh; }
+
+        /* responsive */
+        @media (max-width: 768px) {
+            nav { padding: 0.9rem 1.2rem; flex-wrap: wrap; }
+            .nav-links { gap: 1rem; font-size: 0.85rem; }
+            .brand a { font-size: 1.25rem; }
+        }
+    </style>
+    <style>
+        
+        .contact {
+            height: 100vh;
+            background: linear-gradient(rgba(30, 28, 40, 0.55), rgba(20, 18, 32, 0.65)),
+                        url('https://images.unsplash.com/vector-1744442861923-aaeef319ac38?w=600&auto=format&fit=crop&q=60');
+            background-position: center 30%;
+            background-size: cover;
+            background-attachment: fixed;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #fefdfb;
+            position: relative;
+        }
+        
+        
+    </style>
+    <style>
+        .contact { margin: 0 auto; padding: 5rem 2rem; text-align: center; }
+        .contact h2 { font-family: var(--font-heading); font-size: 2.5rem; margin-bottom: 2.5rem; color: var(--#fefdfb); }
+        #frameForm { display: flex; flex-direction: column; gap: 1.2rem; }
+        #frameForm input, #frameForm textarea {
+            width: 100%; padding: 1rem 1.2rem;
+            font-family: var(--font-body); font-size: 0.95rem;
+            background: var(--white-soft); border: none;
+            border-bottom: 2px solid rgba(44,42,53,0.12);
+            border-radius: 8px 8px 0 0;
+            outline: none; transition: 0.3s;
+        }
+        #frameForm input:focus, #frameForm textarea:focus { border-bottom-color: var(--accent-peach); }
+        #sendBtn {
+            width: 100%; padding: 1rem;
+            background: #b5c9b1; color: var(--navy);
+            border: none; border-radius: 50px;
+            font-weight: 600; font-size: 1rem;
+            cursor: pointer; transition: 0.35s;
+        }
+        #sendBtn:hover { transform: translateY(-3px); box-shadow: 0 8px 26px rgba(181,201,177,0.5); }
+        .form-success-msg { display: none; margin-top: 1rem; color: #3d5a3c; font-weight: 500; }
+        .form-success-msg.show { display: block; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="brand"><a href="index.html">🌊 Tempest</a></div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="moments.html">Moments</a></li>
+            <li><a href="testimonial.html">A Word</a></li>
+            <li><a href="contact.html" class="active">Send a Frame</a></li>
+            <li><a href="join.html">Join Circle</a></li>
+        </ul>
+    </nav>
+
+    <div class="page-content">
+        <section class="contact">
+            <h2>Send a letter</h2>
+            <form id="frameForm">
+                <input type="text" id="name" placeholder="Your Name" required>
+                <input type="text" id="mood" placeholder="Favorite Anime" required>
+                <textarea id="message" placeholder="Your Message..." rows="4" required></textarea>
+                <button type="submit" id="sendBtn">Send as Letter</button>
+            </form>
+            <div class="form-success-msg" id="successMsg">✦ Your frame has been sent! Check WhatsApp.</div>
+        </section>
+    </div>
+
+    <footer style="text-align:center; padding:2rem; font-size:0.85rem; color:var(--text-soft); background: var(--bg-cream-alt);">
+        <p>© Tempest Federation. handcrafted, lead by gang leader.</p>
+    </footer>
+
+    <button id="backToTop">↑</button>
+
+    <script>
+        // Back-to-top
+        const backBtn = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => backBtn.classList.toggle('visible', window.scrollY > 300));
+        backBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+        // WhatsApp form trick (STEP 19)
+        const WHATSAPP_NUMBER = '+918928779723'; // ⚠️ Replace with your real number (with country code, no +)
+        const form = document.getElementById('frameForm');
+        const successMsg = document.getElementById('successMsg');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value.trim();
+            const mood = document.getElementById('mood').value.trim();
+            const message = document.getElementById('message').value.trim();
+
+            if (!name || !mood || !message) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            const fullMessage = `A new letter from ${name}: They love the anime: ${mood}. And they wrote: ${message} – sent from Tempest Federation.`;
+            const encoded = encodeURIComponent(fullMessage);
+            const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`;
+
+            successMsg.classList.add('show');
+            form.reset();
+            window.open(url, '_blank');
+
+            setTimeout(() => successMsg.classList.remove('show'), 5000);
+        });
+    </script>
+</body>
+</html>

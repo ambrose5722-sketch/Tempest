@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tempest Federation — A Word</title>
+    <style>
+        /* ==================== SHARED CSS (same across all pages) ==================== */
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700&family=Quicksand:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-cream: #faf7f2;
+            --bg-cream-alt: #f3ede4;
+            --text-dark: #2c2a35;
+            --text-soft: #5a5560;
+            --accent-peach: #e8b4a2;
+            --accent-peach-hover: #dba08c;
+            --accent-lavender: #c4b5d0;
+            --navy: #2d3a4f;
+            --white-soft: #fefdfb;
+            --shadow-sm: 0 2px 12px rgba(44, 42, 53, 0.06);
+            --shadow-md: 0 6px 24px rgba(44, 42, 53, 0.10);
+            --font-heading: 'Playfair Display', serif;
+            --font-body: 'Quicksand', sans-serif;
+            --transition: 0.3s cubic-bezier(0.45, 0, 0.25, 1);
+            --radius-lg: 20px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: var(--bg-cream);
+            color: var(--text-dark);
+            font-family: var(--font-body);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* navigation */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2.5rem;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background-color: rgba(250, 247, 242, 0.85);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(44, 42, 53, 0.06);
+        }
+        .brand a {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--navy);
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-soft);
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            transition: var(--transition);
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px; left: 0;
+            width: 0; height: 2px;
+            background-color: var(--accent-peach);
+            border-radius: 2px;
+            transition: width 0.35s cubic-bezier(0.45, 0, 0.25, 1);
+        }
+        .nav-links a:hover { color: var(--navy); }
+        .nav-links a:hover::after { width: 100%; }
+        .nav-links a.active { color: var(--navy); font-weight: 600; }
+        .nav-links a.active::after { width: 100%; }
+
+        /* back-to-top button */
+        #backToTop {
+            position: fixed;
+            bottom: 28px; right: 28px;
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            background-color: var(--accent-peach);
+            color: var(--navy);
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            z-index: 999;
+        }
+        #backToTop.visible { display: flex; }
+        #backToTop:hover {
+            background-color: var(--accent-peach-hover);
+            transform: translateY(-5px);
+        }
+
+        /* page content spacing */
+        .page-content { padding-top: 100px; min-height: 80vh; }
+
+        /* responsive */
+        @media (max-width: 768px) {
+            nav { padding: 0.9rem 1.2rem; flex-wrap: wrap; }
+            .nav-links { gap: 1rem; font-size: 0.85rem; }
+            .brand a { font-size: 1.25rem; }
+        }
+    </style>
+    <style>
+        /* HERO SPECIFIC (only on home) */
+        .testimonial {
+            height: 100vh;
+            background: linear-gradient(rgba(30, 28, 40, 0.55), rgba(20, 18, 32, 0.65)),
+                        url('https://images.unsplash.com/photo-1590796583326-afd3bb20d22d?w=600&auto=format&fit=crop&q=60');
+            background-position: center 30%;
+            background-size: cover;
+            background-attachment: fixed;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #fefdfb;
+            position: relative;
+        }
+        .hero h1 { font-family: var(--font-heading); font-size: clamp(2.8rem, 6vw, 5.2rem); font-weight: 800; margin-bottom: 0.5rem; }
+        .hero h2 { font-family: var(--font-heading); font-size: clamp(1.3rem, 2.5vw, 1.8rem); font-weight: 500; font-style: italic; }
+        .hero h3 { font-family: var(--font-body); font-size: 0.95rem; font-weight: 300; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 2rem; }
+        .hero-buttons { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+        .btn-primary, .btn-outline {
+            padding: 0.85rem 2.2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.35s;
+        }
+        .btn-primary { background: var(--accent-peach); color: var(--navy); }
+        .btn-outline { background: transparent; color: #fefdfb; border: 2px solid rgba(254,253,251,0.7); }
+        .btn-primary:hover, .btn-outline:hover { transform: translateY(-3px); }
+    </style>
+    <style>
+        .testimonial { padding: 5rem 2rem; text-align: center; margin: 0 auto }
+        blockquote { max-width: 680px; margin: 0 auto; position: relative; }
+        blockquote::before { content: '"'; position: absolute; top: -60px; left: 50%; transform: translateX(-50%); font-family: var(--font-heading); font-size: 7rem; color: var(--accent-peach); opacity: 0.35; }
+        blockquote p { font-family: var(--font-heading); font-style: italic; font-size: clamp(1.2rem, 2.5vw, 1.6rem); color: var(--#fefdfb); line-height: 1.7; }
+        blockquote cite { display: block; margin-top: 1.2rem; font-style: normal; font-weight: 500; color: var(--text-soft); letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="brand"><a href="index.html">🌊 Tempest</a></div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="moments.html">Moments</a></li>
+            <li><a href="testimonial.html" class="active">A Word</a></li>
+            <li><a href="contact.html">Send a Frame</a></li>
+            <li><a href="join.html">Join Circle</a></li>
+        </ul>
+    </nav>
+
+    <div class="page-content">
+        <section class="testimonial">
+            <blockquote>
+                <p>"I found my people here. We don't just watch. We feel every frame, every silent pause, every note of the piano."</p>
+                <cite>— A</cite>
+            </blockquote>
+        </section>
+    </div>
+
+    <footer style="text-align:center; padding:2rem; font-size:0.85rem; color:var(--text-soft); background: var(--bg-cream-alt);">
+        <p>© Tempest Federation. handcrafted, frame by frame.</p>
+    </footer>
+
+    <button id="backToTop">↑</button>
+
+    <script>
+        const backBtn = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => backBtn.classList.toggle('visible', window.scrollY > 300));
+        backBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    </script>
+</body>
+</html>
